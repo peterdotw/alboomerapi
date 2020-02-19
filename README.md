@@ -8,7 +8,7 @@ Example Album Database REST API written entirely in Go.
 - [Go MySQL Driver](https://github.com/go-sql-driver/mysql) - MySQL Driver for Go database/sql package
 - [GoDotEnv](https://github.com/joho/godotenv) - dotenv for Go
 
-## Todo
+## To do
 
 - [ ] Handle PUT/DELETE requests
 - [x] Connect API with a MySQL database on Google Cloud SQL
