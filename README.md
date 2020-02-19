@@ -10,7 +10,7 @@ Example Album Database REST API written entirely in Go.
 
 ## Todo
 
-- [] Handle PUT/DELETE requests
+- [ ] Handle PUT/DELETE requests
 - [x] Connect API with a MySQL database on Google Cloud SQL
-- [] Make database queries for all routes
-- [] Handle all security stuff
+- [ ] Make database queries for all routes
+- [ ] Handle all security stuff
