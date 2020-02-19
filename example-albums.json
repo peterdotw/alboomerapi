@@ -1,0 +1,46 @@
+{
+  "albums": [
+    {
+      "id": 1,
+      "album_name": "The Slow Rush",
+      "artist": "Tame Impala",
+      "release_date": "2020-02-14",
+      "genre": "Rock"
+    },
+    {
+      "id": 2,
+      "album_name": "Miss Anthropocene",
+      "artist": "Grimes",
+      "release_date": "2020-02-21",
+      "genre": "Electronic"
+    },
+    {
+      "id": 3,
+      "album_name": "Thirst",
+      "artist": "SebastiAn",
+      "release_date": "2019-11-08",
+      "genre": "Electronic"
+    },
+    {
+      "id": 4,
+      "album_name": "uknowhatimsayin¿",
+      "artist": "Danny Brown",
+      "release_date": "2019-10-04",
+      "genre": "Hip hop"
+    },
+    {
+      "id": 5,
+      "album_name": "Flamagra",
+      "artist": "Flying Lotus",
+      "release_date": "2019-05-24",
+      "genre": "Electronic"
+    },
+    {
+      "id": 6,
+      "album_name": "Villains",
+      "artist": "Queens of the Stone Age",
+      "release_date": "2017-08-25",
+      "genre": "Rock"
+    }
+  ]
+}
