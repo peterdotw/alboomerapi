@@ -6,6 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // Albums : Structure for albums
@@ -64,8 +67,7 @@ func albumsHandler(w http.ResponseWriter, r *http.Request) {
 
 func albumsGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	albumsJSON, _ := json.Marshal(initAlbums)
-	w.Write(albumsJSON)
+	json.NewEncoder(w).Encode(initAlbums)
 }
 
 func albumsPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -78,14 +80,37 @@ func albumsPostHandler(w http.ResponseWriter, r *http.Request) {
 	initAlbums.Albums = append(initAlbums.Albums, newAlbum)
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	albumJSON, _ := json.Marshal(newAlbum)
-	w.Write(albumJSON)
+	json.NewEncoder(w).Encode(newAlbum)
+}
+
+func albumHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		albumGetHandler(w, r)
+	case "POST":
+		w.WriteHeader(http.StatusUnauthorized)
+	default:
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}
+
+func albumGetHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for _, album := range initAlbums.Albums {
+		if strconv.Itoa(album.ID) == (params["id"]) {
+			json.NewEncoder(w).Encode(album)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNotFound)
 }
 
 // MakeHTTPHandler - Handler for routes
 func MakeHTTPHandler() http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", indexHandler)
-	mux.HandleFunc("/api/v1/albums", albumsHandler)
-	return mux
+	router := mux.NewRouter()
+	router.HandleFunc("/", indexHandler)
+	router.HandleFunc("/api/v1/albums", albumsHandler)
+	router.HandleFunc("/api/v1/album/{id}", albumHandler)
+	return router
 }
