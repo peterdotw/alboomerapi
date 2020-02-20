@@ -11,7 +11,7 @@ Example Album Database REST API written entirely in Go.
 
 ## To do
 
-- [ ] Handle PUT/DELETE requests
+- [x] Handle PUT/DELETE requests
 - [x] Connect API with a MySQL database on Google Cloud SQL
 - [ ] Make database queries for all routes
 - [ ] Handle all security stuff

@@ -20,10 +20,9 @@ type Albums struct {
 type Album struct {
 	ID          int    `json:"id"`
 	Name        string `json:"album_name"`
-	Artist      string `json:"artist"`
+	Artist      string `json:"artist_name"`
 	ReleaseDate string `json:"release_date"` //time.Time
 	Genre       string `json:"genre"`
-	//Tracks []Track  `json:"tracks"`
 }
 
 func makeExampleDB() []byte {
@@ -54,17 +53,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("<h1>Example REST Api</h1><p>Example REST Api written entirely in Go without any external modules except for go-sql-driver."))
 }
 
-func albumsHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		albumsGetHandler(w, r)
-	case "POST":
-		albumsPostHandler(w, r)
-	default:
-		w.WriteHeader(http.StatusUnauthorized)
-	}
-}
-
 func albumsGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(initAlbums)
@@ -83,17 +71,6 @@ func albumsPostHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newAlbum)
 }
 
-func albumHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		albumGetHandler(w, r)
-	case "POST":
-		w.WriteHeader(http.StatusUnauthorized)
-	default:
-		w.WriteHeader(http.StatusUnauthorized)
-	}
-}
-
 func albumGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -106,11 +83,46 @@ func albumGetHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 }
 
+func albumPutHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	updatedAlbumID, _ := strconv.Atoi(params["id"])
+	for index, album := range initAlbums.Albums {
+		if strconv.Itoa(album.ID) == params["id"] {
+			initAlbums.Albums = append(initAlbums.Albums[:index], initAlbums.Albums[index+1:]...)
+			var updatedAlbum Album
+			_ = json.NewDecoder(r.Body).Decode(&updatedAlbum)
+			updatedAlbum.ID = updatedAlbumID
+			initAlbums.Albums = append(initAlbums.Albums, updatedAlbum)
+			json.NewEncoder(w).Encode(updatedAlbum)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNotFound)
+}
+
+func albumDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	deletedAlbumID, _ := strconv.Atoi(params["id"])
+	for index, item := range initAlbums.Albums {
+		if item.ID == deletedAlbumID {
+			initAlbums.Albums = append(initAlbums.Albums[:index], initAlbums.Albums[index+1:]...)
+			json.NewEncoder(w).Encode(initAlbums.Albums)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNotFound)
+}
+
 // MakeHTTPHandler - Handler for routes
 func MakeHTTPHandler() http.Handler {
 	router := mux.NewRouter()
-	router.HandleFunc("/", indexHandler)
-	router.HandleFunc("/api/v1/albums", albumsHandler)
-	router.HandleFunc("/api/v1/album/{id}", albumHandler)
+	router.HandleFunc("/", indexHandler).Methods("GET")
+	router.HandleFunc("/api/v1/albums", albumsGetHandler).Methods("GET")
+	router.HandleFunc("/api/v1/albums", albumsPostHandler).Methods("POST")
+	router.HandleFunc("/api/v1/album/{id}", albumGetHandler).Methods("GET")
+	router.HandleFunc("/api/v1/album/{id}", albumPutHandler).Methods("PUT")
+	router.HandleFunc("/api/v1/album/{id}", albumDeleteHandler).Methods("DELETE")
 	return router
 }
