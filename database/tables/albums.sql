@@ -10,9 +10,6 @@ CREATE TABLE albums (
 -- name: create-album
 INSERT INTO albums VALUES (default, ?, ?, ?, ?);
 
--- name: create-example
-INSERT INTO albums VALUES (default, 'Beau', 'tiful', '2137-02-02', 'Girl');
-
 -- name: select-albums
 SELECT * FROM albums;
 
