@@ -15,3 +15,9 @@ SELECT * FROM albums;
 
 --name: select-album
 SELECT * FROM albums WHERE id = ?;
+
+--name: update-album
+UPDATE albums SET album_name = ?, artist_name = ?, release_date = ?, genre = ? WHERE id = ?;
+
+--name: delete-album
+DELETE FROM albums WHERE id = ?;

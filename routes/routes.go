@@ -28,32 +28,7 @@ type Album struct {
 
 var db = database.InitDB()
 var dot = database.InitDotSQL()
-
-func makeExampleDB() Albums {
-	var album Album
-	var albums Albums
-	rows, err := dot.Query(db, "select-albums")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&album.ID, &album.Name, &album.Artist, &album.ReleaseDate, &album.Genre)
-		if err != nil {
-			log.Fatal(err)
-		}
-		albums.Albums = append(albums.Albums, album)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-	allAlbums, _ := json.Marshal(albums)
-	json.Unmarshal(allAlbums, &albums)
-	return albums
-}
-
-var initAlbums Albums = makeExampleDB()
+var globalID = 0
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -93,17 +68,20 @@ func albumsPostHandler(w http.ResponseWriter, r *http.Request) {
 	var newAlbum Album
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 	json.Unmarshal(body, &newAlbum)
 	res, err := dot.Exec(db, "create-album", newAlbum.Name, newAlbum.Artist, newAlbum.ReleaseDate, newAlbum.Genre)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 	log.Println(res)
-	initAlbums.Albums = append(initAlbums.Albums, newAlbum)
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
+	globalID++
+	newAlbum.ID = globalID
 	json.NewEncoder(w).Encode(newAlbum)
 }
 
@@ -124,33 +102,32 @@ func albumGetHandler(w http.ResponseWriter, r *http.Request) {
 func albumPutHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	updatedAlbumID, _ := strconv.Atoi(params["id"])
-	for index, album := range initAlbums.Albums {
-		if strconv.Itoa(album.ID) == params["id"] {
-			initAlbums.Albums = append(initAlbums.Albums[:index], initAlbums.Albums[index+1:]...)
-			var updatedAlbum Album
-			_ = json.NewDecoder(r.Body).Decode(&updatedAlbum)
-			updatedAlbum.ID = updatedAlbumID
-			initAlbums.Albums = append(initAlbums.Albums, updatedAlbum)
-			json.NewEncoder(w).Encode(updatedAlbum)
-			return
-		}
+	var updatedAlbum Album
+	_ = json.NewDecoder(r.Body).Decode(&updatedAlbum)
+	row, err := dot.Exec(db, "update-album", updatedAlbum.Name, updatedAlbum.Artist, updatedAlbum.ReleaseDate, updatedAlbum.Genre, params["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
-	w.WriteHeader(http.StatusNotFound)
+	rowsAffected, _ := row.RowsAffected()
+	if rowsAffected == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	updatedAlbum.ID, _ = strconv.Atoi(params["id"])
+	json.NewEncoder(w).Encode(updatedAlbum)
 }
 
 func albumDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	deletedAlbumID, _ := strconv.Atoi(params["id"])
-	for index, item := range initAlbums.Albums {
-		if item.ID == deletedAlbumID {
-			initAlbums.Albums = append(initAlbums.Albums[:index], initAlbums.Albums[index+1:]...)
-			json.NewEncoder(w).Encode(initAlbums.Albums)
-			return
-		}
+	res, _ := dot.Exec(db, "delete-album", params["id"])
+	rowsCount, _ := res.RowsAffected()
+	if rowsCount == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
-	w.WriteHeader(http.StatusNotFound)
+	w.WriteHeader(http.StatusOK)
 }
 
 // MakeHTTPHandler - Handler for routes

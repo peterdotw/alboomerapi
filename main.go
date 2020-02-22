@@ -4,8 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/peterdotw/alboomerapi/routes"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 // PORT : Port on which app is running
