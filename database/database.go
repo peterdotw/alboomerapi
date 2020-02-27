@@ -2,21 +2,26 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
+	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/mysql"
 	"github.com/gchaincl/dotsql"
-	_ "github.com/go-sql-driver/mysql" // MySQL Driver
+	"github.com/joho/godotenv"
 )
 
 // InitDB - Initialize Database connection
 func InitDB() *sql.DB {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	instance := os.Getenv("INSTANCE")
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
-	address := os.Getenv("DB_ADDRESS")
-	name := os.Getenv("DB_NAME")
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, address, name))
+	cfg := mysql.Cfg(instance, username, password)
+	cfg.DBName = os.Getenv("DB_NAME")
+	db, err := mysql.DialCfg(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
