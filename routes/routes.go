@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/peterdotw/alboomerapi/database"
 
@@ -28,7 +27,6 @@ type Album struct {
 
 var db = database.InitDB()
 var dot = database.InitDotSQL()
-var globalID = 0
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -72,17 +70,12 @@ func albumsPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.Unmarshal(body, &newAlbum)
-	res, err := dot.Exec(db, "create-album", newAlbum.Name, newAlbum.Artist, newAlbum.ReleaseDate, newAlbum.Genre)
+	_, err = dot.Exec(db, "create-album", newAlbum.Name, newAlbum.Artist, newAlbum.ReleaseDate, newAlbum.Genre)
 	if err != nil {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-	log.Println(res)
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
-	globalID++
-	newAlbum.ID = globalID
-	json.NewEncoder(w).Encode(newAlbum)
 }
 
 func albumGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -114,8 +107,7 @@ func albumPutHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	updatedAlbum.ID, _ = strconv.Atoi(params["id"])
-	json.NewEncoder(w).Encode(updatedAlbum)
+	w.WriteHeader(http.StatusOK)
 }
 
 func albumDeleteHandler(w http.ResponseWriter, r *http.Request) {

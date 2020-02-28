@@ -1,5 +1,5 @@
 -- name: create-albums-table
-CREATE TABLE albums (
+CREATE TABLE IF NOT EXISTS albums (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   album_name VARCHAR(128) NOT NULL,
   artist_name VARCHAR(128) NOT NULL,

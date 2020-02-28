@@ -26,11 +26,10 @@ func InitDB() *sql.DB {
 		log.Fatal(err)
 	}
 	dot := InitDotSQL()
-	res, err := dot.Exec(db, "create-albums-table")
+	_, err = dot.Exec(db, "create-albums-table")
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(res.RowsAffected())
 
 	return db
 }
