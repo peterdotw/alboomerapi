@@ -8,6 +8,7 @@ Example Album Database REST API written entirely in Go.
 - [Cloud SQL Proxy](github.com/GoogleCloudPlatform/cloudsql-proxy) - Cloud SQL proxy client for connecting to MySQL database
 - [dotsql](https://github.com/gchaincl/dotsql) - Used for reading queries from SQL files
 - [gorilla/mux](https://github.com/gorilla/mux) - A powerful HTTP router and URL matcher for building Go web servers
+- [CORS](https://github.com/rs/cors) - Go CORS handler
 - [GoDotEnv](https://github.com/joho/godotenv) - Dotenv for Go
 
 ## To do
