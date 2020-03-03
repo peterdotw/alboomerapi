@@ -26,7 +26,15 @@ func InitDB() *sql.DB {
 		log.Fatal(err)
 	}
 	dot := InitDotSQL()
+	_, err = dot.Exec(db, "create-artists-table")
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = dot.Exec(db, "create-albums-table")
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = dot.Exec(db, "create-tracks-table")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,10 +44,20 @@ func InitDB() *sql.DB {
 
 // InitDotSQL - Initialize DotSQL
 func InitDotSQL() *dotsql.DotSql {
-	dot, err := dotsql.LoadFromFile("database/tables/albums.sql")
+	dotAlbums, err := dotsql.LoadFromFile("database/tables/albums.sql")
 	if err != nil {
 		log.Fatal(err)
 	}
+	dotArtists, err := dotsql.LoadFromFile("database/tables/artists.sql")
+	if err != nil {
+		log.Fatal(err)
+	}
+	dotTracks, err := dotsql.LoadFromFile("database/tables/tracks.sql")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dot := dotsql.Merge(dotAlbums, dotArtists, dotTracks)
 
 	return dot
 }
