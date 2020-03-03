@@ -18,6 +18,5 @@ Example Album Database REST API written entirely in Go.
 - [x] Make database queries for all routes
 - [x] Handle all security stuff
 - [x] Expand Album structure with more info and DB tables
-- [ ] Implement JWT authentication
 - [ ] Add Redis caching
-
+- [ ] Implement JWT authentication
