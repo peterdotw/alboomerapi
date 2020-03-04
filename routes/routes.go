@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"database/sql"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -57,66 +57,47 @@ func albumsGetHandler(w http.ResponseWriter, r *http.Request) {
 
 func albumPostHandler(w http.ResponseWriter, r *http.Request) {
 	var newAlbum structs.Album
-	var artistExists = ""
-	var existingArtistID = ""
+	var existingAlbumID string
 
-	body, err := ioutil.ReadAll(r.Body)
+	err := json.NewDecoder(r.Body).Decode(&newAlbum)
 	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	json.Unmarshal(body, &newAlbum)
-
-	row, err := dot.QueryRow(db, "artist-exists", newAlbum.ArtistName)
+	row, err := dot.QueryRow(db, "select-artist-id", newAlbum.ArtistName)
+	err = row.Scan(&existingAlbumID)
 	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-	err = row.Scan(&artistExists)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+		if err == sql.ErrNoRows {
+			result, err := dot.Exec(db, "create-artist", newAlbum.ArtistName)
+			if err != nil {
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
 
-	if artistExists != "1" {
-		result, err := dot.Exec(db, "create-artist", newAlbum.ArtistName)
-		if err != nil {
-			w.WriteHeader(http.StatusNoContent)
+			artistID, err := result.LastInsertId()
+			if err != nil {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+
+			_, err = dot.Exec(db, "create-album", newAlbum.Name, artistID, newAlbum.ReleaseDate, newAlbum.Genre)
+			if err != nil {
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+
+			w.WriteHeader(http.StatusCreated)
 			return
 		}
-
-		artistID, err := result.LastInsertId()
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		_, err = dot.Exec(db, "create-album", newAlbum.Name, artistID, newAlbum.ReleaseDate, newAlbum.Genre)
-		if err != nil {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
-		return
 	}
 
-	row, err = dot.QueryRow(db, "select-artist-id", newAlbum.ArtistName)
-	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-	row.Scan(&existingArtistID)
-
-	_, err = dot.Exec(db, "create-album", newAlbum.Name, existingArtistID, newAlbum.ReleaseDate, newAlbum.Genre)
+	_, err = dot.Exec(db, "create-album", newAlbum.Name, existingAlbumID, newAlbum.ReleaseDate, newAlbum.Genre)
 	if err != nil {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-
 }
 
 func albumGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -139,54 +120,42 @@ func albumPutHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var updatedAlbum structs.Album
-	var artistExists = ""
-	var existingArtistID = ""
+	var existingAlbumID string
 	params := mux.Vars(r)
 
-	_ = json.NewDecoder(r.Body).Decode(&updatedAlbum)
-
-	row, err := dot.QueryRow(db, "artist-exists", updatedAlbum.ArtistName)
+	err := json.NewDecoder(r.Body).Decode(&updatedAlbum)
 	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-	err = row.Scan(&artistExists)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	if artistExists != "1" {
-		result, err := dot.Exec(db, "create-artist", updatedAlbum.ArtistName)
-		if err != nil {
-			w.WriteHeader(http.StatusNoContent)
+	row, err := dot.QueryRow(db, "select-artist-id", updatedAlbum.ArtistName)
+	err = row.Scan(&existingAlbumID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			result, err := dot.Exec(db, "create-artist", updatedAlbum.ArtistName)
+			if err != nil {
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+
+			artistID, err := result.LastInsertId()
+			if err != nil {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+
+			_, err = dot.Exec(db, "update-album", updatedAlbum.Name, artistID, updatedAlbum.ReleaseDate, updatedAlbum.Genre, params["id"])
+			if err != nil {
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
 			return
 		}
-
-		artistID, err := result.LastInsertId()
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		_, err = dot.Exec(db, "update-album", updatedAlbum.Name, artistID, updatedAlbum.ReleaseDate, updatedAlbum.Genre)
-		if err != nil {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
-		return
 	}
 
-	row, err = dot.QueryRow(db, "select-artist-id", updatedAlbum.ArtistName)
-	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-	row.Scan(&existingArtistID)
-
-	updateResult, err := dot.Exec(db, "update-album", updatedAlbum.Name, existingArtistID, updatedAlbum.ReleaseDate, updatedAlbum.Genre, params["id"])
+	updateResult, err := dot.Exec(db, "update-album", updatedAlbum.Name, existingAlbumID, updatedAlbum.ReleaseDate, updatedAlbum.Genre, params["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusNoContent)
 		return

@@ -20,6 +20,3 @@ UPDATE artists SET artist_name = ? WHERE artist_id = ?;
 
 -- name: delete-artist
 DELETE FROM artists WHERE artist_id = ?;
-
--- name: artist-exists
-SELECT EXISTS(SELECT artist_name FROM artists WHERE artist_name = ?);
