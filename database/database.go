@@ -61,3 +61,9 @@ func InitDotSQL() *dotsql.DotSql {
 
 	return dot
 }
+
+//Db - Database initialized
+var Db = InitDB()
+
+//Dot - DotSQL initialized
+var Dot = InitDotSQL()

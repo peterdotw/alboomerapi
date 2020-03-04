@@ -13,7 +13,7 @@ import (
 const PORT = ":3000"
 
 func main() {
-	routesHandler := logger.RequestLoggerMiddleware(cors.Default().Handler(routes.MakeHTTPHandler()))
+	routesHandler := logger.RequestLoggerMiddleware(cors.Default().Handler(routes.CreateRouter()))
 	log.Println("Server running on port", PORT)
 	log.Fatal(http.ListenAndServe(PORT, routesHandler))
 }
