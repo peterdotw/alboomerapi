@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/peterdotw/alboomerapi/routes"
-	"github.com/peterdotw/alboomerapi/utils/logger"
+	"github.com/peterdotw/alboomerapi/utils"
 	"github.com/rs/cors"
 )
 
@@ -13,7 +13,7 @@ import (
 const PORT = ":3000"
 
 func main() {
-	routesHandler := logger.RequestLoggerMiddleware(cors.Default().Handler(routes.CreateRouter()))
+	routesHandler := utils.RequestLoggerMiddleware(cors.Default().Handler(routes.CreateRouter()))
 	log.Println("Server running on port", PORT)
 	log.Fatal(http.ListenAndServe(PORT, routesHandler))
 }
