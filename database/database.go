@@ -10,8 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// InitDB - Initialize Database connection
-func InitDB() *sql.DB {
+func initDB() *sql.DB {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -25,7 +24,7 @@ func InitDB() *sql.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dot := InitDotSQL()
+	dot := initDotSQL()
 	_, err = dot.Exec(db, "create-artists-table")
 	if err != nil {
 		log.Fatal(err)
@@ -42,8 +41,7 @@ func InitDB() *sql.DB {
 	return db
 }
 
-// InitDotSQL - Initialize DotSQL
-func InitDotSQL() *dotsql.DotSql {
+func initDotSQL() *dotsql.DotSql {
 	dotAlbums, err := dotsql.LoadFromFile("database/tables/albums.sql")
 	if err != nil {
 		log.Fatal(err)
@@ -63,7 +61,7 @@ func InitDotSQL() *dotsql.DotSql {
 }
 
 //Db - Database initialized
-var Db = InitDB()
+var Db = initDB()
 
 //Dot - DotSQL initialized
-var Dot = InitDotSQL()
+var Dot = initDotSQL()
