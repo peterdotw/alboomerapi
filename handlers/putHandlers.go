@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/peterdotw/alboomerapi/database"
@@ -15,7 +16,7 @@ func AlbumPutHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var updatedAlbum structs.Album
-	var existingAlbumID string
+	var existingArtistID string
 	params := mux.Vars(r)
 
 	err := json.NewDecoder(r.Body).Decode(&updatedAlbum)
@@ -24,20 +25,12 @@ func AlbumPutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	row, err := database.Dot.QueryRow(database.Db, "select-artist-id", updatedAlbum.ArtistName)
-	err = row.Scan(&existingAlbumID)
+	err = row.Scan(&existingArtistID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			result, err := database.Dot.Exec(database.Db, "create-artist", updatedAlbum.ArtistName)
-			if err != nil {
-				w.WriteHeader(http.StatusNoContent)
-				return
-			}
+			result, _ := database.Dot.Exec(database.Db, "create-artist", updatedAlbum.ArtistName)
 
-			artistID, err := result.LastInsertId()
-			if err != nil {
-				w.WriteHeader(http.StatusNotFound)
-				return
-			}
+			artistID, _ := result.LastInsertId()
 
 			_, err = database.Dot.Exec(database.Db, "update-album", updatedAlbum.Name, artistID, updatedAlbum.ReleaseDate, updatedAlbum.Genre, params["id"])
 			if err != nil {
@@ -45,16 +38,19 @@ func AlbumPutHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			database.RedisConnection.Do("DEL", "/album/"+params["id"])
+
+			updatedAlbum.ID, _ = strconv.Atoi(params["id"])
+			albumBytes, _ := json.Marshal(updatedAlbum)
+
+			database.RedisConnection.Do("SETEX", "/album/"+params["id"], 86400, albumBytes)
+
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 	}
 
-	updateResult, err := database.Dot.Exec(database.Db, "update-album", updatedAlbum.Name, existingAlbumID, updatedAlbum.ReleaseDate, updatedAlbum.Genre, params["id"])
-	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
+	updateResult, _ := database.Dot.Exec(database.Db, "update-album", updatedAlbum.Name, existingArtistID, updatedAlbum.ReleaseDate, updatedAlbum.Genre, params["id"])
 
 	rowsAffected, _ := updateResult.RowsAffected()
 	if rowsAffected == 0 {

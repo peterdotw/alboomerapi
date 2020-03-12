@@ -23,17 +23,9 @@ func AlbumPostHandler(w http.ResponseWriter, r *http.Request) {
 	err = row.Scan(&existingAlbumID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			result, err := database.Dot.Exec(database.Db, "create-artist", newAlbum.ArtistName)
-			if err != nil {
-				w.WriteHeader(http.StatusNoContent)
-				return
-			}
+			result, _ := database.Dot.Exec(database.Db, "create-artist", newAlbum.ArtistName)
 
-			artistID, err := result.LastInsertId()
-			if err != nil {
-				w.WriteHeader(http.StatusNotFound)
-				return
-			}
+			artistID, _ := result.LastInsertId()
 
 			_, err = database.Dot.Exec(database.Db, "create-album", newAlbum.Name, artistID, newAlbum.ReleaseDate, newAlbum.Genre)
 			if err != nil {
@@ -46,11 +38,7 @@ func AlbumPostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, err = database.Dot.Exec(database.Db, "create-album", newAlbum.Name, existingAlbumID, newAlbum.ReleaseDate, newAlbum.Genre)
-	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
+	database.Dot.Exec(database.Db, "create-album", newAlbum.Name, existingAlbumID, newAlbum.ReleaseDate, newAlbum.Genre)
 
 	w.WriteHeader(http.StatusCreated)
 }

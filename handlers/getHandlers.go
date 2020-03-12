@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gomodule/redigo/redis"
@@ -28,26 +27,15 @@ func AlbumsGetHandler(w http.ResponseWriter, r *http.Request) {
 		defer rows.Close()
 
 		for rows.Next() {
-			err := rows.Scan(&album.ID, &album.Name, &album.ArtistName, &album.ReleaseDate, &album.Genre)
-			if err != nil {
-				log.Fatal(err)
-			}
+			rows.Scan(&album.ID, &album.Name, &album.ArtistName, &album.ReleaseDate, &album.Genre)
 			albums.Albums = append(albums.Albums, album)
-		}
-
-		err = rows.Err()
-		if err != nil {
-			log.Fatal(err)
 		}
 
 		albumsBytes, _ := json.Marshal(albums)
 		json.Unmarshal(albumsBytes, &albums)
 		json.NewEncoder(w).Encode(albums)
 
-		_, err = database.RedisConnection.Do("SETEX", "/albums", 86400, albumsBytes)
-		if err != nil {
-			log.Panic(err)
-		}
+		database.RedisConnection.Do("SETEX", "/albums", 86400, albumsBytes)
 
 		return
 	}
@@ -75,10 +63,7 @@ func AlbumGetHandler(w http.ResponseWriter, r *http.Request) {
 		albumBytes, _ := json.Marshal(album)
 		json.NewEncoder(w).Encode(album)
 
-		_, err = database.RedisConnection.Do("SETEX", "/album/"+params["id"], 86400, albumBytes)
-		if err != nil {
-			log.Panic(err)
-		}
+		database.RedisConnection.Do("SETEX", "/album/"+params["id"], 86400, albumBytes)
 
 		return
 	}
@@ -104,27 +89,15 @@ func ArtistsGetHandler(w http.ResponseWriter, r *http.Request) {
 		defer rows.Close()
 
 		for rows.Next() {
-			err := rows.Scan(&artist.ID, &artist.ArtistName)
-			if err != nil {
-				log.Fatal(err)
-			}
-
+			rows.Scan(&artist.ID, &artist.ArtistName)
 			artists.Artists = append(artists.Artists, artist)
-		}
-
-		err = rows.Err()
-		if err != nil {
-			log.Fatal(err)
 		}
 
 		artistsBytes, _ := json.Marshal(artists)
 		json.Unmarshal(artistsBytes, &artists)
 		json.NewEncoder(w).Encode(artists)
 
-		_, err = database.RedisConnection.Do("SETEX", "/artists", 86400, artistsBytes)
-		if err != nil {
-			log.Panic(err)
-		}
+		database.RedisConnection.Do("SETEX", "/artists", 86400, artistsBytes)
 
 		return
 	}

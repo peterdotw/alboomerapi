@@ -14,7 +14,7 @@ INSERT INTO albums VALUES (default, ?, ?, ?, ?);
 
 -- name: select-albums
 SELECT al.album_id, al.album_name, ar.artist_name, al.release_date, al.genre FROM albums AS al
-JOIN artists AS ar ON (ar.artist_id = al.artist_id);
+JOIN artists AS ar ON (ar.artist_id = al.artist_id) ORDER BY al.album_id ASC;
 
 -- name: select-album
 SELECT al.album_id, al.album_name, ar.artist_name, al.release_date, al.genre FROM albums AS al

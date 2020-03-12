@@ -9,7 +9,7 @@ import (
 func initRedis() redis.Conn {
 	connection, err := redis.Dial("tcp", ":6379")
 	if err != nil {
-		log.Println(err)
+		log.Panic(err)
 	}
 
 	log.Println("Redis up and running")

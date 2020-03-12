@@ -20,5 +20,7 @@ func AlbumDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	database.RedisConnection.Do("DEL", "/album/"+params["id"])
+
 	w.WriteHeader(http.StatusOK)
 }
