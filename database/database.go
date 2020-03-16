@@ -5,9 +5,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/mysql"
 	"github.com/gchaincl/dotsql"
 	"github.com/joho/godotenv"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func initDB() *sql.DB {
@@ -15,12 +16,10 @@ func initDB() *sql.DB {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	instance := os.Getenv("INSTANCE")
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
-	cfg := mysql.Cfg(instance, username, password)
-	cfg.DBName = os.Getenv("DB_NAME")
-	db, err := mysql.DialCfg(cfg)
+	name := os.Getenv("DB_NAME")
+	db, err := sql.Open("mysql", username+":"+password+"@/"+name)
 	if err != nil {
 		log.Fatal(err)
 	}
