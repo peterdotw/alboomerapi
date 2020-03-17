@@ -6,6 +6,7 @@ import (
 
 	"github.com/peterdotw/alboomerapi/routes"
 	"github.com/peterdotw/alboomerapi/utils"
+
 	"github.com/rs/cors"
 )
 

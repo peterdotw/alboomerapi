@@ -8,6 +8,7 @@ import (
 	"github.com/gchaincl/dotsql"
 	"github.com/joho/godotenv"
 
+	// MySQL Driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -19,7 +20,15 @@ func initDB() *sql.DB {
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
 	name := os.Getenv("DB_NAME")
-	db, err := sql.Open("mysql", username+":"+password+"@/"+name)
+	db, err := sql.Open("mysql", username+":"+password+"@/")
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec("USE " + name)
 	if err != nil {
 		log.Fatal(err)
 	}
