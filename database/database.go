@@ -52,15 +52,15 @@ func initDB() *sql.DB {
 }
 
 func initDotSQL() *dotsql.DotSql {
-	dotAlbums, err := dotsql.LoadFromFile("database/tables/albums.sql")
+	dotAlbums, err := dotsql.LoadFromFile(os.ExpandEnv("$GOPATH/src/github.com/peterdotw/alboomerapi/database/tables/albums.sql"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	dotArtists, err := dotsql.LoadFromFile("database/tables/artists.sql")
+	dotArtists, err := dotsql.LoadFromFile(os.ExpandEnv("$GOPATH/src/github.com/peterdotw/alboomerapi/database/tables/artists.sql"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	dotTracks, err := dotsql.LoadFromFile("database/tables/tracks.sql")
+	dotTracks, err := dotsql.LoadFromFile(os.ExpandEnv("$GOPATH/src/github.com/peterdotw/alboomerapi/database/tables/tracks.sql"))
 	if err != nil {
 		log.Fatal(err)
 	}
