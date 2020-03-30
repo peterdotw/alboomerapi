@@ -11,5 +11,7 @@ install:
   - go mod download
 
 script:
+  - cd handlers
   - go test
+  - cd ..
   - go build
