@@ -12,6 +12,6 @@ install:
 
 script:
   - cd handlers
-  - go test
+  - go test -v
   - cd ..
   - go build
