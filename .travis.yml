@@ -1,0 +1,13 @@
+language: go
+go:
+  - 1.13.x
+
+services:
+  - mysql
+  - redis-server
+
+install:
+  - go mod download
+
+script:
+  - go build
