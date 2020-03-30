@@ -1,6 +1,7 @@
 # All-Boomer REST API
 
 Example Album Database REST API written entirely in Go.
+[![Build Status](https://travis-ci.com/peterdotw/alboomerapi.svg?branch=master)](https://travis-ci.com/peterdotw/alboomerapi)
 
 ## Built With
 
