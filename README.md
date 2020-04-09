@@ -3,6 +3,7 @@
 Example Album Database REST API written entirely in Go.
 
 [![Build Status](https://travis-ci.com/peterdotw/alboomerapi.svg?branch=master)](https://travis-ci.com/peterdotw/alboomerapi)
+[![Coverage Status](https://coveralls.io/repos/github/peterdotw/alboomerapi/badge.svg?branch=master)](https://coveralls.io/github/peterdotw/alboomerapi?branch=master)
 
 ## Built With
 
