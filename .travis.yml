@@ -9,9 +9,11 @@ services:
 
 install:
   - go mod download
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
 
 script:
   - cd handlers
-  - go test -v
+  - go test -v -covermode=count -coverprofile=coverage.out
   - cd ..
   - go build
