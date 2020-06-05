@@ -35,7 +35,7 @@ func TestAlbumPostHandlerWhenArtistExist(t *testing.T) {
 
 func TestAlbumPostHandlerWithBadPayload(t *testing.T) {
 	initDatabases()
-	badPayload := []byte("YOU JUST GOT PRANKED BRO")
+	badPayload := []byte("example bad payload")
 
 	req, err := http.NewRequest("POST", "/api/v1/album", bytes.NewBuffer(badPayload))
 	if err != nil {
