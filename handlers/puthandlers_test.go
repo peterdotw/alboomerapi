@@ -75,6 +75,5 @@ func TestAlbumPutHandlerTwiceWithSamePayload(t *testing.T) {
 	}
 	response = executeRequest(req)
 
-	checkResponseCode(t, http.StatusOK, response.Code)
 	checkResponseCode(t, http.StatusBadRequest, response.Code)
 }

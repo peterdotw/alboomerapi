@@ -65,6 +65,9 @@ func clearDatabases() {
 	database.Db.Exec("DROP TABLE tracks;")
 	database.Db.Exec("DROP TABLE albums;")
 	database.Db.Exec("DROP TABLE artists;")
+	database.Dot.Exec(database.Db, "create-artists-table")
+	database.Dot.Exec(database.Db, "create-albums-table")
+	database.Dot.Exec(database.Db, "create-tracks-table")
 }
 
 func addAlbum(ID int, name, releaseDate, genre string) {
