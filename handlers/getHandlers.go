@@ -19,11 +19,7 @@ func AlbumsGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	getAlbumsFromRedis, err := redis.Bytes(database.RedisConnection.Do("GET", "/albums"))
 	if err != nil {
-		rows, err := database.Dot.Query(database.Db, "select-albums")
-		if err != nil {
-			json.NewEncoder(w).Encode(structs.Albums{})
-			return
-		}
+		rows, _ := database.Dot.Query(database.Db, "select-albums")
 		defer rows.Close()
 
 		for rows.Next() {
@@ -81,11 +77,7 @@ func ArtistsGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	getArtistsFromRedis, err := redis.Bytes(database.RedisConnection.Do("GET", "/artists"))
 	if err != nil {
-		rows, err := database.Dot.Query(database.Db, "select-artists")
-		if err != nil {
-			json.NewEncoder(w).Encode(structs.Artists{})
-			return
-		}
+		rows, _ := database.Dot.Query(database.Db, "select-artists")
 		defer rows.Close()
 
 		for rows.Next() {
